@@ -45,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const parsed = contactSchema.safeParse(fields)
   if (!parsed.success) {
     const fieldErrors = Object.fromEntries(
-      parsed.error.errors.map(e => [e.path[0], e.message])
+      parsed.error.issues.map(e => [e.path[0], e.message])
     )
     return res.status(400).json({ error: 'Validation failed.', fieldErrors })
   }
