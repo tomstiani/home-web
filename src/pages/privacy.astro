@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro'
+---
+
+<Base title="Privacy" description="How tomstiani.com handles your data.">
+  <section class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+    <div class="mb-12">
+      <h1 class="text-3xl font-semibold tracking-tight mb-3 text-white">Privacy</h1>
+      <p class="text-base text-muted">Last updated April 2026.</p>
+    </div>
+
+    <div class="prose">
+      <h2>What is collected</h2>
+      <p>
+        This site uses <a href="https://vercel.com/docs/analytics" target="_blank" rel="noopener noreferrer">Vercel Web Analytics</a> to collect basic, anonymous page view data. The following may be recorded with each page view:
+      </p>
+      <ul>
+        <li>Page URL and dynamic path</li>
+        <li>Referring website</li>
+        <li>Approximate location (city/region/country — derived from request, not stored)</li>
+        <li>Browser, OS, and device type</li>
+        <li>Filtered query parameters</li>
+      </ul>
+
+      <h2>What is not collected</h2>
+      <ul>
+        <li>No cookies are set</li>
+        <li>No personal data is stored</li>
+        <li>No fingerprinting or cross-site tracking</li>
+        <li>IP addresses are never stored</li>
+        <li>No individual browsing sessions are reconstructed</li>
+      </ul>
+
+      <h2>Visitor identification</h2>
+      <p>
+        Visitors are identified by a temporary hash derived from the incoming request. This hash is automatically discarded after 24 hours and cannot be used to identify any individual.
+      </p>
+
+      <h2>Why</h2>
+      <p>
+        I collect page views to understand which projects people find interesting. That's it. I have no interest in tracking individuals.
+      </p>
+
+      <h2>Third parties</h2>
+      <p>
+        Analytics data is processed by <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel</a>, whose privacy policy applies. For more detail on how Vercel handles analytics data, see their <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">analytics privacy documentation</a>. No other third-party services are used on this site.
+      </p>
+    </div>
+  </section>
+</Base>
