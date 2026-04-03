@@ -2,6 +2,7 @@
 import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 import Analytics from '@vercel/analytics/astro'
+import { ClientRouter, fade } from 'astro:transitions'
 import '../styles/global.css'
 
 interface Props {
@@ -38,6 +39,7 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
     <link rel="shortcut icon" href="/assets/favicons/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicons/site.webmanifest" />
+    <ClientRouter />
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
@@ -55,7 +57,7 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
   </head>
   <body class="flex flex-col min-h-screen">
     <Nav />
-    <main class="pt-14 flex-1">
+    <main class="pt-14 flex-1" transition:animate={fade({ duration: '0.2s' })}>
       <slot />
     </main>
     <Footer />
