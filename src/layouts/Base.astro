@@ -65,6 +65,7 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
       <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
       Basic analytics are running on this site.
       <a href="/privacy" class="text-accent hover:opacity-70 transition-opacity duration-150 shrink-0 pointer-events-auto">Learn more →</a>
+      <button id="analytics-toast-close" class="ml-1 text-muted hover:text-white transition-colors duration-150 pointer-events-auto" aria-label="Dismiss">✕</button>
     </div>
   </body>
   <script>
@@ -92,15 +93,33 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
     document.addEventListener('astro:page-load', initCopyButtons)
 
     const toast = document.getElementById('analytics-toast')
-    if (toast) {
-      setTimeout(() => {
+    const toastClose = document.getElementById('analytics-toast-close')
+
+    function dismissToast() {
+      if (!toast) return
+      toast.style.opacity = '0'
+      toast.style.transform = 'translateY(8px)'
+      toast.style.pointerEvents = 'none'
+      sessionStorage.setItem('analytics-toast-dismissed', '1')
+    }
+
+    const dismissed = sessionStorage.getItem('analytics-toast-dismissed')
+    const shown = sessionStorage.getItem('analytics-toast-shown')
+
+    if (toast && !dismissed) {
+      if (!shown) {
+        setTimeout(() => {
+          toast.style.opacity = '1'
+          toast.style.transform = 'translateY(0)'
+          toast.style.pointerEvents = 'auto'
+          sessionStorage.setItem('analytics-toast-shown', '1')
+        }, 1000)
+      } else {
         toast.style.opacity = '1'
         toast.style.transform = 'translateY(0)'
-      }, 1000)
-      setTimeout(() => {
-        toast.style.opacity = '0'
-        toast.style.transform = 'translateY(8px)'
-      }, 5000)
+        toast.style.pointerEvents = 'auto'
+      }
+      toastClose?.addEventListener('click', dismissToast)
     }
   </script>
 </html>
