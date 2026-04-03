@@ -1,6 +1,10 @@
 ---
 import Base from '../layouts/Base.astro'
 import { Icon } from 'astro-icon/components'
+import ContactForm from '../components/ContactForm.tsx'
+
+const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY
+const isDev = import.meta.env.DEV
 
 const socials: { label: string; href: string; icon: string }[] = [
   { label: 'Email', href: 'mailto:hello@tomstiani.com', icon: 'simple-icons:maildotru' },
@@ -20,18 +24,25 @@ const socials: { label: string; href: string; icon: string }[] = [
       </p>
     </div>
 
-    <div class="flex flex-wrap gap-3">
-      {socials.map(s => (
-        <a
-          href={s.href}
-          target={s.href.startsWith('mailto:') ? undefined : '_blank'}
-          rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-          class="inline-flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium text-white bg-surface border border-border transition-colors duration-150 hover:text-accent hover:border-accent-hover"
-        >
-          <Icon name={s.icon} class="w-4 h-4" />
-          {s.label}
-        </a>
-      ))}
+    <div class="mb-12">
+      <ContactForm turnstileSiteKey={turnstileSiteKey} isDev={isDev} client:load />
+    </div>
+
+    <div class="border-t border-border pt-10">
+      <p class="text-sm text-muted mb-4">Or find me elsewhere</p>
+      <div class="flex flex-wrap gap-3">
+        {socials.map(s => (
+          <a
+            href={s.href}
+            target={s.href.startsWith('mailto:') ? undefined : '_blank'}
+            rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+            class="inline-flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium text-white bg-surface border border-border transition-colors duration-150 hover:text-accent hover:border-accent-hover"
+          >
+            <Icon name={s.icon} class="w-4 h-4" />
+            {s.label}
+          </a>
+        ))}
+      </div>
     </div>
   </section>
 </Base>

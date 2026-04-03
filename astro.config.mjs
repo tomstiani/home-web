@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 import mdx from '@astrojs/mdx'
 import icon from 'astro-icon'
 
+import preact from '@astrojs/preact'
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://tomstiani.com',
@@ -12,5 +14,5 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
 
-  integrations: [mdx(), icon()]
+  integrations: [mdx(), icon(), preact()]
 })
