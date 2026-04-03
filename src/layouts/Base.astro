@@ -53,9 +53,9 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
   </head>
-  <body>
+  <body class="flex flex-col min-h-screen">
     <Nav />
-    <main class="pt-14">
+    <main class="pt-14 flex-1">
       <slot />
     </main>
     <Footer />
