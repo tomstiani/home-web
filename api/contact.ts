@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Resend } from 'resend'
-import { contactSchema } from '../src/lib/contactSchema'
+import { contactSchema } from '../src/lib/contactSchema.js'
 
 const ALLOWED_ORIGIN = 'https://tomstiani.com'
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
