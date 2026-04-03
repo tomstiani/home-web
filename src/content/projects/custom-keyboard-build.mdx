@@ -1,0 +1,39 @@
+---
+title: "Custom Keyboard Build"
+description: "Designing and soldering a 65% mechanical keyboard from scratch, including custom PCB and 3D printed case."
+date: 2026-03-15
+tags: ['electronics', 'pcb', '3d-printing']
+status: completed
+featured: true
+---
+
+## Why build a keyboard?
+
+I've been using mechanical keyboards for years, but I always wanted to understand what's actually happening under the keycaps. This project was an excuse to learn PCB design, practice soldering, and try designing an enclosure in Fusion 360.
+
+## The PCB
+
+I used KiCad to design a simple 65% layout. Nothing exotic — just a straightforward matrix with a RP2040 microcontroller running QMK firmware.
+
+```
+Matrix: 14 columns x 5 rows
+MCU: Raspberry Pi RP2040
+Firmware: QMK
+```
+
+The hardest part was routing traces around the USB-C port footprint. I made three PCB revisions before getting it right.
+
+## The case
+
+Designed in Fusion 360 and printed in matte black PETG. PETG was the right call over PLA here — the keyboard gets warm during heavy use and PLA would warp over time.
+
+Print settings that worked:
+- Layer height: 0.15mm
+- Infill: 40% gyroid
+- Supports: tree supports, only where needed
+
+## Result
+
+It works. The typing feel is everything I hoped for — the case resonance is much better than any off-the-shelf board I've tried. Total cost ended up around €120 including switches and keycaps.
+
+Would I do it again? Already planning revision 2.

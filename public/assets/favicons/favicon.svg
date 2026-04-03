@@ -1,0 +1,11 @@
+<svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #ffffff; }
+      .mark { fill: #16a34a; }
+    }
+  </style>
+  <rect class="bg" x="0" y="0" width="44" height="44" fill="#09090b"/>
+  <path class="mark" d="M12.639,32.781l6.329,-22.577l2.145,0l-6.314,22.577l-2.159,0Z" fill="#4ade80" fill-rule="nonzero"/>
+  <path class="mark" d="M21.113,32.781l6.329,-22.577l2.145,0l-6.314,22.577l-2.159,0Z" fill="#4ade80" fill-rule="nonzero"/>
+</svg>

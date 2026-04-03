@@ -1,0 +1,87 @@
+---
+import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
+import '../styles/global.css'
+
+interface Props {
+  title?: string
+  description?: string
+  ogImage?: string
+}
+
+const {
+  title = 'tomstiani',
+  description = 'I like to tinker, sometimes I write about it.',
+  ogImage = '/fallback_og.png',
+} = Astro.props
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href
+const ogImageUrl = new URL(ogImage, Astro.site ?? Astro.url.origin).href
+const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/assets/favicons/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicons/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png" />
+    <link rel="shortcut icon" href="/assets/favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicons/site.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+  </head>
+  <body>
+    <Nav />
+    <main class="pt-14">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+  <script>
+    function initCopyButtons() {
+      document.querySelectorAll('.prose pre:not([data-copy-init])').forEach(pre => {
+        pre.setAttribute('data-copy-init', '')
+        const button = document.createElement('button')
+        button.textContent = 'Copy'
+        button.setAttribute('aria-label', 'Copy code')
+        button.className = 'copy-btn'
+        pre.appendChild(button)
+      })
+    }
+
+    document.addEventListener('click', async e => {
+      const btn = (e.target as Element).closest('.copy-btn')
+      if (!btn) return
+      const code = btn.closest('pre')?.querySelector('code')?.innerText ?? ''
+      await navigator.clipboard.writeText(code)
+      btn.textContent = 'Copied!'
+      setTimeout(() => { btn.textContent = 'Copy' }, 2000)
+    })
+
+    initCopyButtons()
+    document.addEventListener('astro:page-load', initCopyButtons)
+  </script>
+</html>
