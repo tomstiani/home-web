@@ -19,27 +19,27 @@ I wanted smart blinds. I didn't want to replace my Somfy motors or buy an expens
 
 ## The Plan
 
-The idea is simple: instead of emulating the Somfy RTS radio protocol (which requires a special 433.42 MHz transceiver), just wire an ESP32 directly to the physical buttons on the remote's PCB. The ESP32 pulls a signal line LOW to simulate a button press, the Telis transmits the RF command, and the blinds move. The remote handles all the protocol stuff — we're just automating the finger.
+The idea is simple: instead of emulating the Somfy RTS radio protocol (which requires a special 433.42 MHz transceiver), just wire an ESP32 directly to the physical buttons on the remote's PCB. The ESP32 pulls a signal line LOW to simulate a button press, the Telis transmits the RF command, and the blinds move. The remote handles all the protocol stuff. We're just automating the finger.
 
 ## Hardware
 
-- **ESP32-C6-WROOM** dev board (with USB-C)
-- **Somfy Telis 4 RTS** remote control
+- ESP32-C6-WROOM dev board (the one with USB-C)
+- Somfy Telis 4 RTS remote control
 - Breadboard and dupont jumper wires
 - Soldering iron
-- CR2430 coin cell battery (the one already in the Telis)
+- CR2430 coin cell battery (already in the Telis)
 
 ## Mapping the Buttons
 
-The Telis 4 PCB has three tactile buttons — UP, STOP, and DOWN — connected to a central IC. Each button has four legs, but internally they're just two pairs. The legs on the same side are connected, and pressing the button bridges the two sides.
+The Telis 4 PCB has three tactile buttons (UP, STOP, DOWN) connected to a central IC. Each button has four legs, but internally they're just two pairs. The legs on the same side are connected, and pressing the button bridges the two sides.
 
 <Image src={somfyPcb} alt="Somfy Telis 4 RTS PCB showing the three tactile buttons (UP, STOP, DOWN) and the central IC" />
 
-To figure out which side of each button is ground and which is signal, I used a multimeter in continuity mode. I tested across buttons to find which legs shared a common connection — that's the ground rail. The trick was that the ground side alternates between buttons:
+To figure out which side of each button is ground and which is signal, I used a multimeter in continuity mode. I tested across buttons to find which legs shared a common connection, and that's the ground rail. The tricky part was that the ground side alternates between buttons:
 
-- **Button 1 (UP):** ground on top legs, signal on bottom
-- **Button 2 (STOP):** ground on bottom legs, signal on top
-- **Button 3 (DOWN):** ground on top legs, signal on bottom
+- Button 1 (UP): ground on top legs, signal on bottom
+- Button 2 (STOP): ground on bottom legs, signal on top
+- Button 3 (DOWN): ground on top legs, signal on bottom
 
 ## Wiring It Up
 
@@ -47,7 +47,7 @@ I soldered dupont jumper wires to the signal-side leg of each button (one leg pe
 
 <Image src={pcbWiring} alt="ESP32-C6 on a breadboard with four dupont wires soldered to the Telis PCB buttons" />
 
-The orange wire on the left loops from the ESP32's 3.3V pin down to the Telis battery pads — an attempt to power the remote directly from the ESP32's voltage rail and ditch the coin cell. It didn't work out (see The Power Problem below).
+The orange wire on the left loops from the ESP32's 3.3V pin down to the Telis battery pads. This was an attempt to power the remote directly from the ESP32's voltage rail and ditch the coin cell. It didn't work out (see The Power Problem below).
 
 The wiring to the ESP32:
 
@@ -63,7 +63,7 @@ The wiring to the ESP32:
 
 My first attempt was powering the Telis from the ESP32's 3.3V rail, replacing the coin cell entirely. It didn't work. The voltage was correct (3.32V measured at the battery pads), but the Telis refused to respond to button presses.
 
-My theory: the ESP32's onboard voltage regulator is a switching supply, which introduces noise. The Telis RF circuit is sensitive enough that the dirty power keeps it from functioning properly. With the original CR2430 coin cell — perfectly clean DC — it works fine.
+My theory: the ESP32's onboard voltage regulator is a switching supply, which introduces noise. The Telis RF circuit is probably sensitive enough that the dirty power keeps it from functioning properly. With the original CR2430 coin cell (perfectly clean DC) it works fine.
 
 The fix was simple: keep the coin cell in the Telis and only share the ground connection with the ESP32. The ESP32 runs on USB-C power, the Telis runs on its own battery, and the GPIO signals work across the shared ground. A CR2430 lasts well over a year with normal use, so this is a non-issue in practice.
 
@@ -86,7 +86,7 @@ A 150ms pulse triggers a full open or close. Holding longer makes the blinds mov
 
 ## ESPHome Configuration
 
-Once the Arduino test confirmed everything worked, I moved to ESPHome for Home Assistant integration. The GPIO switches use `OUTPUT_OPEN_DRAIN` mode with `inverted: true` — this replicates the "float when idle, pull LOW to activate" behavior from the Arduino sketch.
+Once the Arduino test confirmed everything worked, I moved to ESPHome for Home Assistant integration. The GPIO switches use `OUTPUT_OPEN_DRAIN` mode with `inverted: true`. This replicates the "float when idle, pull LOW to activate" behavior from the Arduino sketch.
 
 The config also includes a `time_based` cover component, which gives Home Assistant a proper blinds entity with open/close/stop controls and position estimation.
 
@@ -177,7 +177,7 @@ If the C6 doesn't enter download mode automatically, hold the **BOOT** button, t
 
 ## The Result
 
-The blinds now show up in Home Assistant as a proper cover entity. I can open, close, and stop them from my phone, set up automations (open at sunrise, close at sunset), or add voice control. The total cost was just the ESP32-C6 dev board and some wire — everything else was already there.
+The blinds now show up in Home Assistant as a proper cover entity. I can open, close, and stop them from my phone, set up automations (open at sunrise, close at sunset), or add voice control. The total cost was just the ESP32-C6 dev board and some wire. Everything else was already there.
 
 <Image src={haControls} alt="Home Assistant device page showing the Blinds cover entity with open, stop, and close controls, plus the individual GPIO switches" />
 
@@ -185,9 +185,9 @@ The blinds now show up in Home Assistant as a proper cover entity. I can open, c
 
 ## Lessons Learned
 
-- **Don't power sensitive RF circuits from a switching regulator.** The Somfy Telis didn't like the ESP32's 3.3V rail. A clean battery supply worked perfectly.
+- **Don't power sensitive RF circuits from a switching regulator.** The Somfy Telis didn't like the ESP32's 3.3V rail. A clean battery supply worked fine.
 - **You don't always need the fancy solution.** There are mature libraries for emulating Somfy RTS over RF with a CC1101 transceiver, but soldering to the existing remote's buttons is simpler and works just as well.
-- **The ESP32-C6 is great but quirky.** USB serial needed `HWCDC` instead of `Serial`, and the browser flasher didn't cooperate. The command line was more reliable.
+- **The ESP32-C6 is great but has quirks.** USB serial needed `HWCDC` instead of `Serial`, and the browser flasher didn't cooperate. The command line was more reliable.
 - **A multimeter is your best friend.** Mapping button pins by checking continuity across legs beats guessing every time.
 
 ## Next Steps
