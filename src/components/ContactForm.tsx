@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'preact/hooks'
-import { contactSchema, type ContactFieldErrors } from '../lib/contactSchema'
+import { contactSchema, type ContactFieldErrors, type ContactFields } from '../lib/contactSchema'
 
 type FormState = 'idle' | 'loading' | 'success' | 'error'
 
@@ -15,6 +15,14 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
   const [turnstileToken, setTurnstileToken] = useState('')
   const widgetRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
+
+  function validateField(field: keyof ContactFields, value: string) {
+    const result = contactSchema.shape[field].safeParse(value)
+    setFieldErrors(prev => ({
+      ...prev,
+      [field]: result.success ? undefined : result.error.issues[0].message,
+    }))
+  }
 
   useEffect(() => {
     // In dev the widget is bypassed — show a placeholder instead
@@ -90,10 +98,9 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
     const parsed = contactSchema.safeParse(data)
     if (!parsed.success) {
       const errors = Object.fromEntries(
-        parsed.error.errors.map(err => [err.path[0], err.message])
+        parsed.error.issues.map(err => [err.path[0], err.message])
       ) as ContactFieldErrors
       setFieldErrors(errors)
-      setState('error')
       return
     }
 
@@ -165,6 +172,7 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
           required
           autocomplete="name"
           placeholder="Your name"
+          onBlur={e => validateField('name', (e.target as HTMLInputElement).value)}
           class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none transition-colors duration-150 ${fieldErrors.name ? 'border-red-500' : 'border-border focus:border-accent-hover'}`}
         />
         {fieldErrors.name && <p class="text-xs text-red-400 m-0">{fieldErrors.name}</p>}
@@ -179,6 +187,7 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
           required
           autocomplete="email"
           placeholder="you@example.com"
+          onBlur={e => validateField('email', (e.target as HTMLInputElement).value)}
           class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none transition-colors duration-150 ${fieldErrors.email ? 'border-red-500' : 'border-border focus:border-accent-hover'}`}
         />
         {fieldErrors.email && <p class="text-xs text-red-400 m-0">{fieldErrors.email}</p>}
@@ -192,6 +201,7 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
           required
           rows={5}
           placeholder="What's on your mind?"
+          onBlur={e => validateField('message', (e.target as HTMLTextAreaElement).value)}
           class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none transition-colors duration-150 resize-y ${fieldErrors.message ? 'border-red-500' : 'border-border focus:border-accent-hover'}`}
         />
         {fieldErrors.message && <p class="text-xs text-red-400 m-0">{fieldErrors.message}</p>}
@@ -214,7 +224,7 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
       <button
         type="submit"
         disabled={state === 'loading'}
-        class="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-bg bg-accent hover:opacity-90 transition-opacity duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-bg bg-accent hover:opacity-90 transition-opacity duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {state === 'loading' ? 'Sending…' : 'Send message'}
       </button>
