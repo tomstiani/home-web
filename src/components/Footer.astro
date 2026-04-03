@@ -1,10 +1,11 @@
 ---
+import { Icon } from 'astro-icon/components'
+
 const year = new Date().getFullYear()
 
-// Social links — add yours here when ready
-const socials: { label: string; href: string }[] = [
-  // { label: 'GitHub', href: 'https://github.com/yourhandle' },
-  // { label: 'X', href: 'https://x.com/yourhandle' },
+const socials: { label: string; href: string; icon: string }[] = [
+  { label: 'GitHub', href: 'https://github.com/tomstiani', icon: 'simple-icons:github' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/tomstiani/', icon: 'simple-icons:linkedin' },
 ]
 ---
 
@@ -13,21 +14,20 @@ const socials: { label: string; href: string }[] = [
     <span class="text-sm text-muted">
       &copy; {year} tomstiani
     </span>
-    {socials.length > 0 && (
-      <ul class="flex items-center gap-5 list-none m-0 p-0">
-        {socials.map(s => (
-          <li>
-            <a
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sm text-muted transition-colors duration-150 hover:text-white"
-            >
-              {s.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )}
+    <ul class="flex items-center gap-4 list-none m-0 p-0">
+      {socials.map(s => (
+        <li>
+          <a
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={s.label}
+            class="text-muted transition-colors duration-150 hover:text-white"
+          >
+            <Icon name={s.icon} class="w-5 h-5" />
+          </a>
+        </li>
+      ))}
+    </ul>
   </div>
 </footer>
