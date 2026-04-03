@@ -1,43 +1,63 @@
-# Astro Starter Kit: Minimal
+# tomstiani.com
 
-```sh
-bun create astro@latest -- --template minimal
+Personal portfolio and project case studies. Built with Astro, Tailwind CSS v4, and MDX.
+
+## Stack
+
+- **[Astro](https://astro.build)** — static site generator
+- **[Tailwind CSS v4](https://tailwindcss.com)** — utility-first styling
+- **[MDX](https://mdxjs.com)** — project case studies with embedded components
+- **Geist** — font (via `@fontsource-variable/geist`)
+- **Vercel** — deployment
+
+## Project structure
+
+```
+src/
+├── assets/projects/     # Project images (optimized by Astro at build time)
+├── components/          # Nav, Footer, ProjectCard, ProseWrapper
+├── content/projects/    # MDX case studies
+├── content.config.ts    # Content collection schema
+├── layouts/             # Base.astro, Project.astro
+├── pages/               # index, projects/[slug], contact
+└── styles/global.css    # Design tokens, Tailwind, prose styles
+
+public/
+├── assets/favicons/     # favicon.svg, .ico, PNGs, webmanifest
+└── fallback_og.png      # Fallback Open Graph image
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Adding a project
 
-## 🚀 Project Structure
+Create a new `.mdx` file in `src/content/projects/`:
 
-Inside of your Astro project, you'll see the following folders and files:
+```mdx
+---
+title: "Project title"
+description: "One sentence description."
+date: 2026-01-01
+tags: ['electronics', 'homelab']
+status: completed          # or: ongoing
+featured: false            # true to show on homepage
+cover: "../../assets/projects/my-project/cover.jpg"   # optional
+github: "https://github.com/tomstiani/my-project"     # optional
+---
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+import { Image } from 'astro:assets'
+import photo from '../../assets/projects/my-project/photo.jpg'
+
+Your writeup in MDX...
+
+<Image src={photo} alt="Description" />
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Images go in `src/assets/projects/<project-slug>/` and are automatically converted to WebP and optimized at build time.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Commands
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+| Command | Action |
+|---|---|
+| `bun install` | Install dependencies |
+| `bun run dev` | Start dev server at `localhost:4321` |
+| `bun run build` | Build to `./dist/` |
+| `bun run preview` | Preview production build locally |
