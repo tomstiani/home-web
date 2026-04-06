@@ -12,10 +12,11 @@ import { Image } from 'astro:assets'
 import somfyPcb from '../../assets/projects/esp-blinds/somfy_pcb.jpeg'
 import pcbWiring from '../../assets/projects/esp-blinds/pcb_wiring.jpeg'
 import haControls from '../../assets/projects/esp-blinds/home-assistant_controls.png'
+import doneBoth from '../../assets/projects/esp-blinds/done_both.jpeg'
 
 I wanted smart blinds. I didn't want to replace my Somfy motors or buy an expensive hub. So I cracked open my Telis 4 RTS remote, soldered a few wires to the buttons, and let an ESP32-C6 do the pressing for me. Then I did the same thing with my awning remote — both running off one ESP32.
 
-{/* TODO: Add hero image of the finished setup */}
+{/*TODO: Add hero image of the finished setup*/}
 
 ## The Plan
 
@@ -232,6 +233,8 @@ brew install esphome
 esphome run blinds-controller.yaml
 ```
 
+<Image src={doneBoth} alt="All the wireing and setup is done for both controllers" />
+
 If the C6 doesn't enter download mode automatically, hold the **BOOT** button, tap **RST**, then release BOOT before running the flash command.
 
 The good news: once ESPHome is flashed the first time, subsequent updates can be done over the air (OTA) — no USB cable or boot button needed.
@@ -244,7 +247,7 @@ Both the blinds and awning now show up in Home Assistant as proper cover entitie
 
 *These are the auto-generated device controls — functional but rough. I'll replace them with a proper dashboard card down the line.*
 
-{/* TODO: Add screenshot of Home Assistant dashboard showing both covers */}
+{/*TODO: Add screenshot of Home Assistant dashboard showing both covers*/}
 
 ## Lessons Learned
 
