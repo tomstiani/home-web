@@ -1,7 +1,7 @@
 ---
 title: "Smart Blinds on the Cheap: Hacking a Somfy Telis 4 RTS with an ESP32-C6"
 date: 2026-04-03
-description: "How I wired an ESP32-C6 into a Somfy Telis 4 RTS remote to control my blinds from Home Assistant — no RF module required."
+description: "How I wired an ESP32-C6 into two Somfy remotes to control my blinds and awning from Home Assistant — no RF module required."
 tags: ["esp32", "esphome", "home-assistant", "somfy", "smart-home"]
 status: ongoing
 featured: true
@@ -13,9 +13,9 @@ import somfyPcb from '../../assets/projects/esp-blinds/somfy_pcb.jpeg'
 import pcbWiring from '../../assets/projects/esp-blinds/pcb_wiring.jpeg'
 import haControls from '../../assets/projects/esp-blinds/home-assistant_controls.png'
 
-I wanted smart blinds. I didn't want to replace my Somfy motors or buy an expensive hub. So I cracked open my Telis 4 RTS remote, soldered a few wires to the buttons, and let an ESP32-C6 do the pressing for me.
+I wanted smart blinds. I didn't want to replace my Somfy motors or buy an expensive hub. So I cracked open my Telis 4 RTS remote, soldered a few wires to the buttons, and let an ESP32-C6 do the pressing for me. Then I did the same thing with my awning remote — both running off one ESP32.
 
-{/*TODO: Add hero image of the finished setup — not yet taken*/}
+{/* TODO: Add hero image of the finished setup */}
 
 ## The Plan
 
@@ -24,10 +24,11 @@ The idea is simple: instead of emulating the Somfy RTS radio protocol (which req
 ## Hardware
 
 - ESP32-C6-WROOM dev board (the one with USB-C)
-- Somfy Telis 4 RTS remote control
+- Somfy Telis 4 RTS remote control (blinds)
+- Somfy-compatible remote control (awning)
 - Breadboard and dupont jumper wires
 - Soldering iron
-- CR2430 coin cell battery (already in the Telis)
+- CR2430 coin cell batteries (one per remote)
 
 ## Mapping the Buttons
 
@@ -41,6 +42,8 @@ To figure out which side of each button is ground and which is signal, I used a 
 - Button 2 (STOP): ground on bottom legs, signal on top
 - Button 3 (DOWN): ground on top legs, signal on bottom
 
+The awning remote had a similar layout but with all the ground legs on the same side — a straight line instead of alternating. The process is the same either way: use continuity mode to find which legs are shared across buttons, and solder to the opposite side.
+
 ## Wiring It Up
 
 I soldered dupont jumper wires to the signal-side leg of each button (one leg per button is enough since the pair is internally connected). Plus one wire to a ground leg for the shared ground connection.
@@ -49,7 +52,7 @@ I soldered dupont jumper wires to the signal-side leg of each button (one leg pe
 
 The orange wire on the left loops from the ESP32's 3.3V pin down to the Telis battery pads. This was an attempt to power the remote directly from the ESP32's voltage rail and ditch the coin cell. It didn't work out (see The Power Problem below).
 
-The wiring to the ESP32:
+### Blinds Remote
 
 | Wire | Telis PCB | ESP32-C6 |
 |------|-----------|----------|
@@ -57,15 +60,25 @@ The wiring to the ESP32:
 | STOP signal | Button 2, top leg | GPIO 5 |
 | DOWN signal | Button 3, bottom leg | GPIO 6 |
 | Ground | Any ground leg | GND |
-| 3.3V power *(removed)* | Battery pad + | 3V3 |
 
-### The Power Problem
+### Awning Remote
+
+| Wire | Awning PCB | ESP32-C6 |
+|------|-----------|----------|
+| Contract signal | Button 1 | GPIO 7 |
+| STOP signal | Button 2 | GPIO 8 |
+| Expand signal | Button 3 | GPIO 10 |
+| Ground | Any ground leg | GND |
+
+Both remotes share the same GND connection on the ESP32. I spliced the two ground wires together and ran a single wire to the ESP32's GND pin.
+
+## The Power Problem
 
 My first attempt was powering the Telis from the ESP32's 3.3V rail, replacing the coin cell entirely. It didn't work. The voltage was correct (3.32V measured at the battery pads), but the Telis refused to respond to button presses.
 
 My theory: the ESP32's onboard voltage regulator is a switching supply, which introduces noise. The Telis RF circuit is probably sensitive enough that the dirty power keeps it from functioning properly. With the original CR2430 coin cell (perfectly clean DC) it works fine.
 
-The fix was simple: keep the coin cell in the Telis and only share the ground connection with the ESP32. The ESP32 runs on USB-C power, the Telis runs on its own battery, and the GPIO signals work across the shared ground. A CR2430 lasts well over a year with normal use, so this is a non-issue in practice.
+The fix was simple: keep the coin cell in each remote and only share the ground connection with the ESP32. The ESP32 runs on USB-C power, the remotes run on their own batteries, and the GPIO signals work across the shared ground. A CR2430 lasts well over a year with normal use, so this is a non-issue in practice.
 
 ## Testing with Arduino
 
@@ -88,7 +101,7 @@ A 150ms pulse triggers a full open or close. Holding longer makes the blinds mov
 
 Once the Arduino test confirmed everything worked, I moved to ESPHome for Home Assistant integration. The GPIO switches use `OUTPUT_OPEN_DRAIN` mode with `inverted: true`. This replicates the "float when idle, pull LOW to activate" behavior from the Arduino sketch.
 
-The config also includes a `time_based` cover component, which gives Home Assistant a proper blinds entity with open/close/stop controls and position estimation.
+The config includes two `time_based` cover components — one for the blinds and one for the awning. This gives Home Assistant proper cover entities with open/close/stop controls and position estimation. The individual switches are marked as `internal` so they don't clutter up the Home Assistant dashboard.
 
 ```yaml
 esphome:
@@ -104,12 +117,6 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-  ap:
-    ssid: "Blinds-Controller"
-    password: "fallback123"
-
-captive_portal:
-
 logger:
 
 api:
@@ -118,6 +125,7 @@ ota:
   platform: esphome
 
 switch:
+  # Blinds (Remote 1)
   - platform: gpio
     pin:
       number: GPIO4
@@ -125,6 +133,7 @@ switch:
       inverted: true
     name: "Blinds Up"
     id: blinds_up
+    internal: true
     on_turn_on:
       - delay: 150ms
       - switch.turn_off: blinds_up
@@ -136,6 +145,7 @@ switch:
       inverted: true
     name: "Blinds Stop"
     id: blinds_stop
+    internal: true
     on_turn_on:
       - delay: 150ms
       - switch.turn_off: blinds_stop
@@ -147,21 +157,70 @@ switch:
       inverted: true
     name: "Blinds Down"
     id: blinds_down
+    internal: true
     on_turn_on:
       - delay: 150ms
       - switch.turn_off: blinds_down
+
+  # Awning (Remote 2)
+  - platform: gpio
+    pin:
+      number: GPIO7
+      mode: OUTPUT_OPEN_DRAIN
+      inverted: true
+    name: "Awning Contract"
+    id: awning_in
+    internal: true
+    on_turn_on:
+      - delay: 150ms
+      - switch.turn_off: awning_in
+
+  - platform: gpio
+    pin:
+      number: GPIO8
+      mode: OUTPUT_OPEN_DRAIN
+      inverted: true
+    name: "Awning Stop"
+    id: awning_stop
+    internal: true
+    on_turn_on:
+      - delay: 150ms
+      - switch.turn_off: awning_stop
+
+  - platform: gpio
+    pin:
+      number: GPIO10
+      mode: OUTPUT_OPEN_DRAIN
+      inverted: true
+    name: "Awning Expand"
+    id: awning_out
+    internal: true
+    on_turn_on:
+      - delay: 150ms
+      - switch.turn_off: awning_out
 
 cover:
   - platform: time_based
     name: "Blinds"
     open_action:
       - switch.turn_on: blinds_up
-    open_duration: 20s
+    open_duration: 50s
     close_action:
       - switch.turn_on: blinds_down
-    close_duration: 20s
+    close_duration: 50s
     stop_action:
       - switch.turn_on: blinds_stop
+
+  - platform: time_based
+    name: "Awning"
+    open_action:
+      - switch.turn_on: awning_out
+    open_duration: 30s
+    close_action:
+      - switch.turn_on: awning_in
+    close_duration: 30s
+    stop_action:
+      - switch.turn_on: awning_stop
 ```
 
 ## Flashing the ESP32-C6
@@ -175,13 +234,17 @@ esphome run blinds-controller.yaml
 
 If the C6 doesn't enter download mode automatically, hold the **BOOT** button, tap **RST**, then release BOOT before running the flash command.
 
+The good news: once ESPHome is flashed the first time, subsequent updates can be done over the air (OTA) — no USB cable or boot button needed.
+
 ## The Result
 
-The blinds now show up in Home Assistant as a proper cover entity. I can open, close, and stop them from my phone, set up automations (open at sunrise, close at sunset), or add voice control. The total cost was just the ESP32-C6 dev board and some wire. Everything else was already there.
+Both the blinds and awning now show up in Home Assistant as proper cover entities. I can open, close, and stop them from my phone, set up automations, or add voice control. One ESP32-C6 controls two separate Somfy remotes with six GPIO pins total.
 
 <Image src={haControls} alt="Home Assistant device page showing the Blinds cover entity with open, stop, and close controls, plus the individual GPIO switches" />
 
 *These are the auto-generated device controls — functional but rough. I'll replace them with a proper dashboard card down the line.*
+
+{/* TODO: Add screenshot of Home Assistant dashboard showing both covers */}
 
 ## Lessons Learned
 
@@ -189,9 +252,11 @@ The blinds now show up in Home Assistant as a proper cover entity. I can open, c
 - **You don't always need the fancy solution.** There are mature libraries for emulating Somfy RTS over RF with a CC1101 transceiver, but soldering to the existing remote's buttons is simpler and works just as well.
 - **The ESP32-C6 is great but has quirks.** USB serial needed `HWCDC` instead of `Serial`, and the browser flasher didn't cooperate. The command line was more reliable.
 - **A multimeter is your best friend.** Mapping button pins by checking continuity across legs beats guessing every time.
+- **One ESP32 can drive multiple remotes.** As long as you have enough GPIO pins and a shared ground, adding another remote is just more of the same.
+- **Avoid strapping pins.** GPIO 0 and 1 on the ESP32-C6 can cause boot issues — I moved my awning signals to GPIO 7, 8, and 10 instead.
 
 ## Next Steps
 
 - Ditch the breadboard and solder everything directly for a cleaner, more permanent build.
-- Design and print a case that houses both the ESP32 and the Telis PCB, while still leaving the buttons accessible for manual use.
+- Design and print a case that houses the ESP32 and both remote PCBs, while still leaving the buttons accessible for manual use.
 - Build a proper Home Assistant dashboard card to replace the default device controls.
