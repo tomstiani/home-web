@@ -16,7 +16,7 @@ const socials: { label: string; href: string; icon: string }[] = [
 <Base title="Contact" description="Get in touch with tomstiani.">
   <section class="max-w-3xl mx-auto px-6 pt-16 pb-24">
     <div class="mb-12">
-      <h1 class="text-3xl font-semibold tracking-tight mb-3 text-white">Get in touch</h1>
+      <h1 class="text-3xl font-semibold tracking-tight mb-3 text-heading">Get in touch</h1>
       <p class="text-base leading-relaxed text-muted">
         Have a question, want to collaborate, or just want to talk shop about
         electronics, homelabs, or 3D printing? I'm always happy to hear from
@@ -36,7 +36,7 @@ const socials: { label: string; href: string; icon: string }[] = [
             href={s.href}
             target={s.href.startsWith('mailto:') ? undefined : '_blank'}
             rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-            class="inline-flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium text-white bg-surface border border-border transition-colors duration-150 hover:text-accent hover:border-accent-hover"
+            class="inline-flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium text-heading bg-surface border border-border transition-colors duration-150 hover:text-accent hover:border-accent-hover"
           >
             <Icon name={s.icon} class="w-4 h-4" />
             {s.label}

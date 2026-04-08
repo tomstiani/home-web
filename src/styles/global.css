@@ -10,6 +10,7 @@
   --color-surface:      #0f1210;
   --color-border:       rgba(74, 222, 128, 0.08);
   --color-text:         #e4e4e7;
+  --color-heading:      #f4f4f5;
   --color-muted:        #82828a;
   --color-accent:       #4ade80;
   --color-accent-dim:   rgba(74, 222, 128, 0.08);
@@ -39,6 +40,7 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-kerning: normal;
   }
 
   body {
@@ -74,9 +76,10 @@
   .prose h2,
   .prose h3,
   .prose h4 {
-    color: white;
+    color: var(--color-heading);
     font-weight: 600;
     line-height: 1.25;
+    letter-spacing: -0.015em;
     margin-top: 2em;
     margin-bottom: 0.75em;
   }
@@ -103,7 +106,7 @@
   }
 
   .prose strong {
-    color: white;
+    color: var(--color-heading);
     font-weight: 600;
   }
 
@@ -135,6 +138,7 @@
   .prose code {
     font-family: var(--font-mono);
     font-size: 0.875em;
+    font-variant-ligatures: none;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 4px;
@@ -157,7 +161,7 @@
     right: 0.6em;
     padding: 0.2em 0.6em;
     font-family: var(--font-mono);
-    font-size: 0.7em;
+    font-size: 0.75rem;
     color: var(--color-muted);
     background: transparent;
     border: 1px solid var(--color-border);
@@ -205,7 +209,7 @@
   .prose th {
     text-align: left;
     padding: 0.5em 1em;
-    color: white;
+    color: var(--color-heading);
     font-weight: 600;
   }
 
