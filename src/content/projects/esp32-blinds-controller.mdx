@@ -15,7 +15,7 @@ import pcbWiring from '../../assets/projects/esp-blinds/pcb_wiring.jpeg'
 import haControls from '../../assets/projects/esp-blinds/home-assistant_controls.png'
 import doneBoth from '../../assets/projects/esp-blinds/done_both.jpeg'
 
-<Callout type="disclaimer">This post was written with AI assistance and proofread by me. I'm a developer, not a writer.</Callout>
+<Callout type="disclaimer">This post was written with AI assistance and proofread by me.</Callout>
 
 I wanted smart blinds. I didn't want to replace the motors or buy an expensive hub. So I cracked open my Telis 4 RTS remote, soldered a few wires to the buttons, and let an ESP32-C6 do the pressing. Then I did the same thing with the awning remote. Both on one ESP32.
 
@@ -23,7 +23,7 @@ I wanted smart blinds. I didn't want to replace the motors or buy an expensive h
 
 ## The idea
 
-The Somfy RTS protocol runs on 433.42 MHz — an unusual frequency that most off-the-shelf RF modules don't support. You can emulate it with a CC1101 transceiver, but that's extra hardware, a library to wrangle, and you still have to pair the new transmitter with your motors. More moving parts than I wanted.
+The Somfy RTS protocol runs on 433.42 MHz — an unusual frequency that most off-the-shelf RF modules don't support. You can emulate it with a CC1101 transceiver, but that means extra hardware, a library to wrangle, and you still have to pair the new transmitter with your motors. More moving parts than I wanted.
 
 The simpler approach: skip the radio entirely. Wire an ESP32 directly to the physical buttons on the remote's PCB. Pull a pin LOW, the Telis sends its RF command, blinds move. The remote handles all the protocol stuff. I'm just automating the finger press.
 
@@ -75,7 +75,7 @@ One thing worth knowing: GPIO 0 and 1 on the C6 are strapping pins. If you hold 
 
 My first attempt was to cut the coin cell out entirely and power the Telis from the ESP32's 3.3V rail. The voltage measured correctly at the battery pads (3.32V), but the remote just stopped working. Button presses did nothing.
 
-My guess is noise. The ESP32's onboard regulator is a switching supply, and the Telis RF circuit is apparently sensitive enough that it doesn't like the dirty power. The original CR2430 is clean DC and works fine. So: keep the coin cells, share only the ground. A CR2430 lasts well over a year with normal use so it's not really a maintenance issue.
+My guess is noise. The ESP32's onboard regulator is a switching supply, and the Telis RF circuit is apparently sensitive enough that it doesn't like dirty power. The original CR2430 is clean DC. So: keep the coin cells, share only the ground. A CR2430 lasts well over a year anyway.
 
 ## Testing with Arduino first
 
@@ -92,7 +92,7 @@ void pressButton(int pin) {
 }
 ```
 
-150ms is enough to trigger a full open or close command. Holding longer puts the blinds in "jog" mode where they move only while held and stop when released. Useful to know but not what I wanted here.
+150ms is enough to trigger a full open or close command. Holding longer puts the blinds in "jog" mode — they move only while held and stop when released. Good to know, but not what I was after.
 
 ## ESPHome config
 
@@ -235,7 +235,7 @@ If the board doesn't enter download mode automatically: hold **BOOT**, tap **RST
 
 ## Where it ended up
 
-Both remotes show up in Home Assistant as cover entities. I can open, close, and stop them from anywhere, throw them into automations, or add voice control. One ESP32-C6, two remotes, six GPIO pins.
+Both remotes show up in Home Assistant as cover entities. Open, close, stop, position estimation — it all works. One ESP32-C6, two remotes, six GPIO pins.
 
 <Image src={haControls} alt="Home Assistant device page showing the Blinds cover entity with open, stop, and close controls, plus the individual GPIO switches" />
 
