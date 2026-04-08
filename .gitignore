@@ -8,6 +8,9 @@ _*.md
 
 # AI stuff
 AGENTS.md
+.impeccable.md
+.pi
+.pi-lens
 
 # dependencies
 node_modules/

@@ -9,7 +9,7 @@ const pathname = Astro.url.pathname
 
 <header transition:persist transition:animate="none" class="fixed top-0 left-0 right-0 z-50 border-b border-border bg-nav-bg backdrop-blur-md">
   <nav class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-    <a href="/" class="text-sm font-semibold tracking-tight text-white flex items-center">
+    <a href="/" class="text-sm font-semibold tracking-tight text-white flex items-center min-h-[44px]">
       <span class="text-accent">//</span>tomstiani
     </a>
     <ul class="flex items-center gap-6 list-none m-0 p-0">
@@ -18,7 +18,7 @@ const pathname = Astro.url.pathname
           <a
             href={link.href}
             data-nav-href={link.href}
-            class={`text-sm transition-colors duration-150 ${pathname.startsWith(link.href) ? 'text-accent' : 'text-muted'}`}
+            class={`inline-flex items-center min-h-[44px] px-1 text-sm transition-colors duration-150 ${pathname.startsWith(link.href) ? 'text-accent' : 'text-muted'}`}
           >
             {link.label}
           </a>

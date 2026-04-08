@@ -10,12 +10,19 @@
   --color-surface:      #0f1210;
   --color-border:       rgba(74, 222, 128, 0.08);
   --color-text:         #e4e4e7;
-  --color-muted:        #71717a;
+  --color-muted:        #82828a;
   --color-accent:       #4ade80;
   --color-accent-dim:   rgba(74, 222, 128, 0.08);
   --color-accent-dim2:  rgba(74, 222, 128, 0.15);
   --color-accent-hover: rgba(74, 222, 128, 0.2);
   --color-nav-bg:       rgba(9, 9, 11, 0.85);
+  --color-muted-dim:    rgba(130, 130, 138, 0.06);
+  --color-error:        #f87171;
+  --color-error-dim:    rgba(248, 113, 113, 0.08);
+  --color-warning:      #fbbf24;
+  --color-warning-dim:  rgba(251, 191, 36, 0.06);
+  --color-info:         #38bdf8;
+  --color-info-dim:     rgba(56, 189, 248, 0.06);
 }
 
 
@@ -50,10 +57,17 @@
     display: block;
   }
 
+  /* Focus visible — keyboard navigation */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
   /* Prose styles for MDX content */
   .prose {
     color: var(--color-text);
     max-width: 65ch;
+    overflow-wrap: break-word;
   }
 
   .prose h1,
@@ -207,5 +221,14 @@
 
   .prose tbody tr:hover td {
     background-color: var(--color-surface);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

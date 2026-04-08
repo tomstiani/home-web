@@ -142,8 +142,7 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
 
   if (state === 'success') {
     return (
-      <div class="flex items-start gap-3 px-5 py-4 rounded-lg bg-surface border border-border">
-        <span class="mt-0.5 w-2 h-2 rounded-full bg-accent shrink-0" />
+      <div class="px-5 py-4 rounded-lg bg-surface border border-accent-dim2">
         <p class="text-sm text-text m-0">
           Message sent. I'll get back to you as soon as I can.
         </p>
@@ -173,9 +172,9 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
           autocomplete="name"
           placeholder="Your name"
           onBlur={e => validateField('name', (e.target as HTMLInputElement).value)}
-          class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none transition-colors duration-150 ${fieldErrors.name ? 'border-red-500' : 'border-border focus:border-accent-hover'}`}
+          class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-accent transition-colors duration-150 ${fieldErrors.name ? 'border-error' : 'border-border focus:border-accent-hover'}`}
         />
-        {fieldErrors.name && <p class="text-xs text-red-400 m-0">{fieldErrors.name}</p>}
+        {fieldErrors.name && <p class="text-xs text-error m-0">{fieldErrors.name}</p>}
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -188,9 +187,9 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
           autocomplete="email"
           placeholder="you@example.com"
           onBlur={e => validateField('email', (e.target as HTMLInputElement).value)}
-          class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none transition-colors duration-150 ${fieldErrors.email ? 'border-red-500' : 'border-border focus:border-accent-hover'}`}
+          class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-accent transition-colors duration-150 ${fieldErrors.email ? 'border-error' : 'border-border focus:border-accent-hover'}`}
         />
-        {fieldErrors.email && <p class="text-xs text-red-400 m-0">{fieldErrors.email}</p>}
+        {fieldErrors.email && <p class="text-xs text-error m-0">{fieldErrors.email}</p>}
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -202,9 +201,9 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
           rows={5}
           placeholder="What's on your mind?"
           onBlur={e => validateField('message', (e.target as HTMLTextAreaElement).value)}
-          class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none transition-colors duration-150 resize-y ${fieldErrors.message ? 'border-red-500' : 'border-border focus:border-accent-hover'}`}
+          class={`px-4 py-2.5 rounded-lg bg-surface border text-sm text-text placeholder:text-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-accent transition-colors duration-150 resize-y ${fieldErrors.message ? 'border-error' : 'border-border focus:border-accent-hover'}`}
         />
-        {fieldErrors.message && <p class="text-xs text-red-400 m-0">{fieldErrors.message}</p>}
+        {fieldErrors.message && <p class="text-xs text-error m-0">{fieldErrors.message}</p>}
       </div>
 
       {/* Turnstile widget — placeholder shown in dev to avoid real Cloudflare connections */}
@@ -218,13 +217,13 @@ export default function ContactForm({ turnstileSiteKey, isDev }: Props) {
       )}
 
       {state === 'error' && errorMsg && (
-        <p class="text-sm text-red-400 m-0">{errorMsg}</p>
+        <p class="text-sm text-error m-0">{errorMsg}</p>
       )}
 
       <button
         type="submit"
         disabled={state === 'loading'}
-        class="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-bg bg-accent hover:opacity-90 transition-opacity duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        class="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-bg bg-accent hover:opacity-90 active:opacity-75 transition-opacity duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {state === 'loading' ? 'Sending…' : 'Send message'}
       </button>
