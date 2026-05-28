@@ -9,12 +9,14 @@ interface Props {
   title?: string
   description?: string
   ogImage?: string
+  noindex?: boolean
 }
 
 const {
   title = 'tomstiani',
   description = 'I like to tinker, sometimes I write about it.',
   ogImage = '/fallback_og.png',
+  noindex = false,
 } = Astro.props
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href
@@ -31,6 +33,7 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
     <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/assets/favicons/favicon.svg" />
@@ -72,6 +75,7 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
   <script>
     function initCopyButtons() {
       document.querySelectorAll('.prose pre:not([data-copy-init])').forEach(pre => {
+        if ((pre as HTMLElement).dataset.language === 'mermaid') return
         pre.setAttribute('data-copy-init', '')
         const button = document.createElement('button')
         button.textContent = 'Copy'
@@ -123,4 +127,78 @@ const pageTitle = title === 'tomstiani' ? title : `${title} — tomstiani`
       toastClose?.addEventListener('click', dismissToast)
     }
   </script>
+  <script is:inline>
+  const MERMAID_THEME = {
+    startOnLoad: false,
+    theme: 'base',
+    themeVariables: {
+      background:            '#09090b',
+      mainBkg:               '#0f1210',
+      clusterBkg:            '#0f1210',
+      secondaryColor:        '#09090b',
+      tertiaryColor:         '#0f1210',
+      nodeBorder:            'rgba(74,222,128,0.2)',
+      clusterBorder:         'rgba(74,222,128,0.15)',
+      primaryBorderColor:    'rgba(74,222,128,0.2)',
+      lineColor:             'rgba(74,222,128,0.4)',
+      edgeLabelBackground:   '#09090b',
+      primaryTextColor:      '#e4e4e7',
+      secondaryTextColor:    '#82828a',
+      tertiaryTextColor:     '#82828a',
+      textColor:             '#e4e4e7',
+      titleColor:            '#f4f4f5',
+      labelColor:            '#e4e4e7',
+      primaryColor:          '#0f1210',
+      fontFamily:            'Geist Mono Variable, ui-monospace, monospace',
+      fontSize:              '13px',
+      actorBkg:              '#0f1210',
+      actorBorder:           'rgba(74,222,128,0.2)',
+      actorTextColor:        '#e4e4e7',
+      actorLineColor:        'rgba(74,222,128,0.3)',
+      signalColor:           'rgba(74,222,128,0.6)',
+      signalTextColor:       '#e4e4e7',
+      labelBoxBkgColor:      '#0f1210',
+      labelBoxBorderColor:   'rgba(74,222,128,0.2)',
+      labelTextColor:        '#e4e4e7',
+      loopTextColor:         '#e4e4e7',
+      noteBorderColor:       'rgba(74,222,128,0.2)',
+      noteBkgColor:          'rgba(74,222,128,0.06)',
+      noteTextColor:         '#e4e4e7',
+      activationBorderColor: '#4ade80',
+      activationBkgColor:    'rgba(74,222,128,0.08)',
+      sequenceNumberColor:   '#09090b',
+    },
+  }
+
+  async function renderMermaid() {
+    const fencedPres = document.querySelectorAll(
+      'pre[data-language="mermaid"]:not([data-mermaid-processed])'
+    )
+    // .mermaid divs rendered by the explicit <Mermaid> component;
+    // mermaid itself marks processed elements with data-processed
+    const explicitDivs = document.querySelectorAll('.mermaid:not([data-processed])')
+
+    if (fencedPres.length === 0 && explicitDivs.length === 0) return
+
+    const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')
+    mermaid.initialize(MERMAID_THEME)
+
+    // Convert Shiki-highlighted pre blocks into plain .mermaid divs
+    fencedPres.forEach(pre => {
+      pre.setAttribute('data-mermaid-processed', '')
+      const code = pre.querySelector('code')
+      const source = code ? code.textContent || '' : pre.textContent || ''
+      const div = document.createElement('div')
+      div.className = 'mermaid flex justify-center overflow-x-auto my-8'
+      div.textContent = source
+      pre.replaceWith(div)
+    })
+
+    // .mermaid divs (from <Mermaid> component) are passed directly to mermaid.run()
+    await mermaid.run()
+  }
+
+  renderMermaid()
+  document.addEventListener('astro:page-load', renderMermaid)
+</script>
 </html>
