@@ -52,44 +52,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { name, email, message } = parsed.data
 
-  if (IS_PROD) {
-    if (!turnstileToken) {
-      return res.status(400).json({ error: 'Missing challenge token.' })
+  try {
+    if (IS_PROD) {
+      if (!turnstileToken) {
+        return res.status(400).json({ error: 'Missing challenge token.' })
+      }
+
+      const turnstileRes = await fetch(TURNSTILE_VERIFY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          secret: TURNSTILE_SECRET_KEY,
+          response: turnstileToken,
+          remoteip: (() => {
+            const xff = req.headers['x-forwarded-for']
+            return (Array.isArray(xff) ? xff[0] : xff?.split(',')[0]?.trim()) ?? req.socket?.remoteAddress
+          })(),
+        }),
+      })
+
+      if (!turnstileRes.ok) throw new Error(`Turnstile returned ${turnstileRes.status}`)
+      const turnstileData = await turnstileRes.json() as { success: boolean }
+
+      if (!turnstileData.success) {
+        return res.status(400).json({ error: 'Challenge verification failed.' })
+      }
     }
 
-    const turnstileRes = await fetch(TURNSTILE_VERIFY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        secret: TURNSTILE_SECRET_KEY,
-        response: turnstileToken,
-        remoteip: (() => {
-          const xff = req.headers['x-forwarded-for']
-          return (Array.isArray(xff) ? xff[0] : xff?.split(',')[0]?.trim()) ?? req.socket?.remoteAddress
-        })(),
-      }),
+    const { error } = await resend.emails.send({
+      from: 'Contact Form <hello@send.tomstiani.com>',
+      to: 'hello@tomstiani.com',
+      replyTo: email,
+      subject: `New message from ${name}`,
+      text: `From: ${name} <${email}>\n\n${message}`,
+      html: `<p><strong>From:</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`,
     })
 
-    const turnstileData = await turnstileRes.json() as { success: boolean }
-
-    if (!turnstileData.success) {
-      return res.status(400).json({ error: 'Challenge verification failed.' })
+    if (error) {
+      console.error('Resend error:', error)
+      return res.status(500).json({ error: 'Failed to send message. Please try again.' })
     }
+
+    return res.status(200).json({ ok: true })
+  } catch (err) {
+    console.error('Contact service error:', err instanceof Error ? err.message : 'Something went wrong.')
+    return res.status(502).json({ error: 'Failed to send message. Please try again.' })
   }
-
-  const { error } = await resend.emails.send({
-    from: 'Contact Form <hello@send.tomstiani.com>',
-    to: 'hello@tomstiani.com',
-    replyTo: email,
-    subject: `New message from ${name}`,
-    text: `From: ${name} <${email}>\n\n${message}`,
-    html: `<p><strong>From:</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`,
-  })
-
-  if (error) {
-    console.error('Resend error:', error)
-    return res.status(500).json({ error: 'Failed to send message. Please try again.' })
-  }
-
-  return res.status(200).json({ ok: true })
 }
